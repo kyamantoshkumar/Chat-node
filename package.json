@@ -1,7 +1,6 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -16,5 +15,14 @@
     "mongoose": "^6.8.2",
     "nodemon": "^2.0.20",
     "socket.io": "^4.1.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kyamantoshkumar/Chat-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kyamantoshkumar/Chat-node/issues"
+  },
+  "homepage": "https://github.com/kyamantoshkumar/Chat-node#readme",
+  "description": ""
 }
