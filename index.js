@@ -1,28 +1,61 @@
 
 
+// const router = express("router")
 const express = require("express");
 const app = express();
+const morgan = require('morgan')
+const  mongoose = require ("mongoose");
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
-const commection = require("./src/Components/connection/coonection")
+// const path = require('path')
+const path = require("path")
+var bodyParser = require("body-parser")
+// const loginRouter = require("./routes/login")
+// const userRouter = require("./src/routes/users")
+
+const db = require("./src/db/connection.js")
 app.use(cors());
-
-
+// Router.use()
 const mongo = require('mongodb').MongoClient;
 // const client = require('socket.io').listen(4000).sockets;
+const  usersRouter = require("./src/routes/users")
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+// import router file
+const authRouter= require("./src/routes/auth")
+app.use('/api', authRouter)
+
+const { MongoClient, ServerApiVersion, Db } = require('mongodb');
+const { addAbortSignal } = require("stream");
+const { Router } = require("express");
 const uri = "mongodb+srv://Mantosh:<password>@cluster0.vqogskc.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
+client.connect(err => { 
+const collection = client.db("test").collection("devices");
+// perform actions on the collection object
+client.close();
 });
 
+const api = process.env.PI_URL;
+app.use(cors())
+app.options("*", cors())
 
+// middleware
+app.use(express.json())
+app.use(morgan("tiny"))
+
+//errors
+// app.use(notFoundMiddleware);
+// app.use(errorHandlerMiddleware);
+
+mongoose.set('strictQuery', false)
+mongoose.connect(`${process.env.CONNECTION_URL}`,
+{useNewUrlParser: true, useUnifieldToplogy: true, dbName: "Eshop"})
+.then(() => { console.log("Database connection established")}
+).catch((err) => {console.log("Error connecting")})
 const server = http.createServer(app);
+
+app.use(bodyParser.urlencoded({extended: false}))
 
 const io = new Server(server, {
   cors: {
@@ -48,72 +81,54 @@ io.on("connection", (socket) => {
   });
 });
 
-commection();
-
+db();
 server.listen(4000, () => {
-  console.log("SERVER RUNNING");
+  console.log("NODE SERVER RUNNING");
 });
 
 
+// index.post("/login", async(req, res) => {
+//   try{
+//      const addingLoginFile = new LoginFile(req.body)
+//      console.log(req.body);
+//      const insertLoginFile = await addingLoginFile.save()
+//      res.send(insertlogin)
+//     }catch(e){
+//     res.send(e)
+//   }
+//   let options = {
+//     uri: "http://[::1]:8000" + constants.PATH_TO_API,
+//     // port:443,
+//     method: 'POST',
+//     json: json
+// };
+// })
+
+// mongoose.connect("mongodb://localhost:27017/chatapplication", {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// }).then(() =>{
+//  console.log('Database connected');
+//  // if(!error){
+//  // }
+// }).catch(error=>{
+//  console.log(error)
+// })
+
+
+// index.post("/login", async(req, res) => {
+//   try{
+//         const = new LoginFile({
+//              "id" : 1,
+//              "name" : "Mantosh",
+//              "profile" : "mantosh@123"
+//          })
+//          adding.LoginFile.save();
+//   }catch(e){
+
+//   }
+// })
 
 
 
-// mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
-//     if(err){
-//         throw err;
-//     }
 
-//     console.log('MongoDB connected...');
-
-//     // Connect to Socket.io
-//     client.on('connection', function(socket){
-//         let chat = db.collection('chats');
-
-//         // Create function to send status
-//         sendStatus = function(s){
-//             socket.emit('status', s);
-//         }
-
-//         // Get chats from mongo collection
-//         chat.find().limit(100).sort({_id:1}).toArray(function(err, res){
-//             if(err){
-//                 throw err;
-//             }
-
-//             // Emit the messages
-//             socket.emit('output', res);
-//         });
-
-//         // Handle input events
-//         socket.on('input', function(data){
-//             let name = data.name;
-//             let message = data.message;
-
-//             // Check for name and message
-//             if(name == '' || message == ''){
-//                 // Send error status
-//                 sendStatus('Please enter a name and message');
-//             } else {
-//                 // Insert message
-//                 chat.insert({name: name, message: message}, function(){
-//                     client.emit('output', [data]);
-
-//                     // Send status object
-//                     sendStatus({
-//                         message: 'Message sent',
-//                         clear: true
-//                     });
-//                 });
-//             }
-//         });
-
-//         // Handle clear
-//         socket.on('clear', function(data){
-//             // Remove all chats from collection
-//             chat.remove({}, function(){
-//                 // Emit cleared
-//                 socket.emit('cleared');
-//             });
-//         });
-//     });
-// });
